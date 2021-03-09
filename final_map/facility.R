@@ -7,7 +7,9 @@ library(stringr)
 library(rsconnect)
 library(maps)
 library(dplyr)
-mental_health_facilities <- read.csv("nmhss-puf-2018.csv")
+mental_health <- read.csv("nmhss-puf-2018.csv")
+state_populations <- read.csv("state.csv")
+mental_health_facilities <- full_join(mental_health, state_populations, by = "LST")
 state_shapes <- map_data("state") %>%
   mutate(name = toupper(region))
 abbreviations <- data.frame(name = state.name, abb= state.abb) %>%
@@ -97,3 +99,34 @@ blank_theme <- theme_bw() +
     panel.grid.minor = element_blank(),
     panel.border = element_blank(),
   )
+#states
+al <- mental_health_facilities %>%
+  filter(LST == "AL") %>%
+  select(CHILDAD, ADOLES, YOUNGADULTS, ADULT, SENIORS) %>%
+  gather() %>%
+  filter(value == 1)
+ak <- mental_health_facilities %>%
+  filter(LST == "AK") %>%
+  select(CHILDAD, ADOLES, YOUNGADULTS, ADULT, SENIORS) %>%
+  gather() %>%
+  filter(value == 1)
+az <- mental_health_facilities %>%
+  filter(LST == "AZ") %>%
+  select(CHILDAD, ADOLES, YOUNGADULTS, ADULT, SENIORS) %>%
+  gather() %>%
+  filter(value == 1)
+ar <- mental_health_facilities %>%
+  filter(LST == "AR") %>%
+  select(CHILDAD, ADOLES, YOUNGADULTS, ADULT, SENIORS) %>%
+  gather() %>%
+  filter(value == 1)
+ca <- mental_health_facilities %>%
+  filter(LST == "CA") %>%
+  select(CHILDAD, ADOLES, YOUNGADULTS, ADULT, SENIORS) %>%
+  gather() %>%
+  filter(value == 1)
+co <- mental_health_facilities %>%
+  filter(LST == "CO") %>%
+  select(CHILDAD, ADOLES, YOUNGADULTS, ADULT, SENIORS) %>%
+  gather() %>%
+  filter(value == 1)

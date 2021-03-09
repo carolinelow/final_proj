@@ -23,7 +23,7 @@ ui <- fluidPage(
     sidebarLayout(
         sidebarPanel(
             selectInput("facilities",
-                        label = h3("Number of Mental Health Facilities in Each State"),
+                        label = h3("Type of Facility"),
                                    c("Total" = "total",
                                      "Psychiatric Hospital" = "psych",
                                      "Separate inpatient psychiatric unit of a general hospital" = "separate",
@@ -35,10 +35,40 @@ ui <- fluidPage(
                                      "Partial hospitalization/day treatment facility" = "partial",
                                      "Outpatient mental health facility" = "outpatient",
                                      "Multi-setting mental health facility" = "multi",
-                                     "Other" = "other"))
-        ),
+                                     "Other" = "other")),
+            selectInput("state",
+                        label = h3("Select a State"),
+                        c("Alabama (AL)" = "al", "Alaska (AK)" = "ak", 
+                        "Arizona (AZ)" = "az", "Arkansas (AR)" = "ar", 
+                        "California (CA)" = "ca", "Colorado (CO)" = "co",
+                        "Connecticut (CT)" = "ct", "Delaware (DE)" = "de",
+                        "Florida (FL)" = "fl", "Georgia (GA)" = "ga",
+                        "Hawaii (HI)" = "hi", "Idaho (ID)" = "id",
+                        "Illinois (IL)" = "il", "Indiana (IN)" = "in",
+                        "Iowa (IA)" = "ia", "Kansas (KS)" = "ks",
+                        "Kentucky (KY)" = "ky", "Louisiana (LA)" = "la",
+                        "Maine (ME)" = "me", "Maryland (MD)" = "md",
+                        "Massachusetts (MA)" = "ma", "Michigan (MI)" = "mi",
+                        "Minnesota (MN)" = "mn", "Mississippi (MS)" = "ms",
+                        "Missouri (MO)" = "mo", "Montana (MT)" = "mt",
+                        "Nebraska (NE)" = "ne", "Nevada (NV)" = "nv",
+                        "New Hampshire (NH)" = "nh", "New Jersey (NJ)" = "nj",
+                        "New Mexico (NM)" = "nm", "New York (NY)" = "ny",
+                        "North Carolina (NC)" = "nc",
+                         "North Dakota (ND)" = "nd",
+                        "Ohio (OH)" = "oh", "Oklahoma (OK)" = "ok",
+                        "Oregon (OR)" = "or", "Pennsylvania (PA)" = "pa",
+                        "Rhode Island (RI)" = "ri",
+                         "South Carolina (SC)" = "sc",
+                        "South Dakota (SD)" = "sd", "Tennessee (TN)" = "tn",
+                        "Texas (TX)" = "tx", "Utah (UT)" = "ut",
+                        "Vermont (VT)" = "vt", "Virginia (VA)" = "va",
+                        "Washington (WA)" = "wa", "West Virginia (WV)" = "wv",
+                        "Wisconsin (WI)" = "wi", "Wyoming (WY)" = "wy"
+                        ))), 
         mainPanel(
-            plotlyOutput("facility_map")
+            plotlyOutput("facility_map"),
+            plotlyOutput("state_graph")
     ),
 ),
 )
@@ -86,7 +116,10 @@ server <- function(input, output) {
         {facilities_input() %>%
                 ggplot() +
                 geom_polygon(
-                    mapping = aes(x = long, y = lat, group = group, fill = number),
+                    mapping = aes(x = long, y = lat, group = group, 
+                                  LST = LST, fill = number,
+                                  text = paste("State:", LST,
+                                               "<br>Number of Mental Health Facilities:", number)),
                     color = "gray", size = 0.3
                 ) +
                 coord_map() +
@@ -95,8 +128,39 @@ server <- function(input, output) {
                 labs(title = "Number of Mental Health Facilities in Each State, 2018") +
                 labs(fill = "Number of Facilities") +
                 blank_theme
-    }
+    } %>%
+            ggplotly(tooltip = "text")
         })
+    state_input <- reactive({
+        if (input$state == "al") {
+            data <- al
+        }
+        if (input$state == "ak") {
+            data <- ak
+        }
+        if (input$state == "az") {
+            data <- az
+        }
+        if (input$state == "ar") {
+            data <- ar
+        }
+        if (input$state == "ca") {
+            data <- ca
+        }
+        if (input$state == "co") {
+            data <- co
+        }
+        else if (input$state == "wy") {
+            data <- wy
+        }
+        return(data)
+    })
+    output$state_graph <- renderPlotly({
+        {state_input() %>%
+                ggplot(aes(x = key, y = value, fill = key)) +
+                geom_bar(stat = "identity", width = 0.5)
+                }
+    })
 }
 
 # Run the application 
